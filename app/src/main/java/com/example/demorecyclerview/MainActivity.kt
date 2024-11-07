@@ -1,28 +1,34 @@
 package com.example.demorecyclerview
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.activity.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demorecyclerview.databinding.ActivityMainBinding
+import com.example.demorecyclerview.room.AppViewModel
 
 class MainActivity : ComponentActivity() {
 
     private  lateinit var binding: ActivityMainBinding
+    private val viewModel: AppViewModel by viewModels()
+    private val adapter = MultiViewAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.recyclerview.layoutManager = LinearLayoutManager(this@MainActivity)
-        binding.recyclerview.adapter = MultiViewAdapter(getList())
-    }
-    private fun getList(): ArrayList<ItemTypeInterface> {
-        val itemList = ArrayList<ItemTypeInterface>()
+        binding.recyclerview.adapter = adapter
+        binding.recyclerview.layoutManager = LinearLayoutManager(this)
 
-        for (i in 1..10) {
-            itemList.add(User(R.drawable.user5, "User $i", "user$i@gmail.com"))
-            itemList.add(Company("Company $i", "+3806123456$i", "company$i@gmail.com"))
+        viewModel.itemList.observe(this) { itemList ->
+            itemList?.let {
+                adapter.submitList(it)
+            }
         }
-        return itemList
+        if (viewModel.itemList.value.isNullOrEmpty()) {
+            viewModel.generateItemList()
+        }
+        binding.deleteButton.setOnClickListener{
+            viewModel.deleteItem()
+        }
     }
 }

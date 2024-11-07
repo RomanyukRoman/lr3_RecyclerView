@@ -1,15 +1,23 @@
 package com.example.demorecyclerview
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.demorecyclerview.databinding.CompanyBinding
 import com.example.demorecyclerview.databinding.UserBinding
 
-class MultiViewAdapter(private val list: ArrayList<ItemTypeInterface>):
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MultiViewAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    private val list: ArrayList<ItemTypeInterface> = ArrayList()
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun submitList(newList: ArrayList<ItemTypeInterface>) {
+        list.clear()
+        list.addAll(newList)
+        notifyDataSetChanged()
+    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
 
             ItemTypeInterface.USER_TYPE -> UserViewHolder(UserBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -32,5 +40,23 @@ class MultiViewAdapter(private val list: ArrayList<ItemTypeInterface>):
     }
     override fun getItemViewType(position: Int): Int {
         return list[position].getType()
+    }
+
+    class UserViewHolder(private val binding: UserBinding): RecyclerView.ViewHolder(binding.root) {
+        fun bind(user: User){
+
+            binding.userImage.setImageResource(user.image)
+            binding.userName.text = user.name
+            binding.userEmail.text = user.email
+        }
+    }
+
+    class CompanyViewHolder(private val binding: CompanyBinding): RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(company: Company){
+            binding.companyName.text = company.name
+            binding.companyNumber.text = company.number
+            binding.companyEmail.text = company.email
+        }
     }
 }
